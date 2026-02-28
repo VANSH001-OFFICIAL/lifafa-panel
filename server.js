@@ -3,96 +3,150 @@ const session = require('express-session');
 const path = require('path');
 const app = express();
 
+// --- MIDDLEWARE CONFIGURATION ---
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
-    secret: 'asvr-mint-secret',
+    secret: 'asvr-full-secure-key-2026',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours session
 }));
 
-// Temporary Database (Memory)
+// --- DATABASE (In-Memory) ---
+// Isme Username, Mobile aur Password teeno store honge
 let users = [
     { 
         username: "admin", 
-        mobile: "9999999999", 
+        mobile: "1234567890", 
         password: "123", 
-        wallet: { balance: 500.00, recharge: 0, withdraw: 0 } 
+        wallet: { balance: 1000.00, recharge: 500, withdraw: 0 } 
     }
 ];
 
-// Routes
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views/login.html')));
-app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'views/signup.html')));
+// --- 1. AUTHENTICATION ROUTES ---
 
-// Sign Up with Mobile
-app.post('/auth/signup', (req, res) => {
-    const { username, mobile, password } = req.body;
-    if (users.find(u => u.username === username || u.mobile === mobile)) {
-        return res.send('Username or Mobile already exists! <a href="/signup">Try again</a>');
-    }
-    users.push({ 
-        username, 
-        mobile, 
-        password, 
-        wallet: { balance: 0.00, recharge: 0, withdraw: 0 } 
-    });
-    res.send('ASVR Account Created! <a href="/">Login Now</a>');
+// Login Page load karna
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views/login.html'));
 });
 
-// Login with Username & Mobile
+// Signup Page load karna
+app.get('/signup', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views/signup.html'));
+});
+
+// Naya Account banana (Signup Logic)
+app.post('/auth/signup', (req, res) => {
+    const { username, mobile, password } = req.body;
+
+    // Check agar user pehle se exist karta hai
+    const existingUser = users.find(u => u.username === username || u.mobile === mobile);
+    if (existingUser) {
+        return res.send('Error: Username or Mobile already registered! <a href="/signup">Try again</a>');
+    }
+
+    // Naya user object
+    const newUser = {
+        username: username,
+        mobile: mobile,
+        password: password,
+        wallet: { balance: 0.00, recharge: 0, withdraw: 0 }
+    };
+
+    users.push(newUser);
+    console.log("New User Registered:", username);
+    res.send('<h1>ASVR WALLET</h1><p>Account Created Successfully!</p><a href="/">Login Now</a>');
+});
+
+// Login check karna (Username + Mobile + Password)
 app.post('/login', (req, res) => {
     const { username, mobile, password } = req.body;
-    const user = users.find(u => u.username === username && u.mobile === mobile && u.password === password);
+    
+    const user = users.find(u => 
+        u.username === username && 
+        u.mobile === mobile && 
+        u.password === password
+    );
+
     if (user) {
         req.session.loggedin = true;
         req.session.username = username;
+        req.session.mobile = mobile;
         res.redirect('/dashboard');
     } else {
-        res.send('Invalid Details! Make sure Username, Mobile and Password are correct. <a href="/">Try again</a>');
+        res.send('Invalid Credentials! Check Username, Mobile and Password. <a href="/">Go Back</a>');
     }
 });
 
-// --- API FEATURE: ID to ID Transaction ---
-// Use: POST /api/transfer (Requires auth)
-app.post('/api/transfer', (req, res) => {
-    if (!req.session.loggedin) return res.status(401).json({ success: false, msg: "Unauthorized" });
+// --- 2. DASHBOARD & WALLET API ---
 
-    const { receiverMobile, amount } = req.body;
-    const sender = users.find(u => u.username === req.session.username);
-    const receiver = users.find(u => u.mobile === receiverMobile);
+app.get('/dashboard', (req, res) => {
+    if (req.session.loggedin) {
+        res.sendFile(path.join(__dirname, 'views/dashboard.html'));
+    } else {
+        res.redirect('/');
+    }
+});
 
-    const transferAmt = parseFloat(amount);
-
-    if (!receiver) return res.json({ success: false, msg: "Receiver mobile number not found in ASVR!" });
-    if (sender.mobile === receiverMobile) return res.json({ success: false, msg: "Cannot send to yourself!" });
-    if (transferAmt <= 0 || sender.wallet.balance < transferAmt) return res.json({ success: false, msg: "Insufficient Balance!" });
-
-    // Transaction Logic
-    sender.wallet.balance -= transferAmt;
-    receiver.wallet.balance += transferAmt;
-
-    res.json({ 
-        success: true, 
-        msg: `Transferred ₹${transferAmt} to ${receiver.username} successfully!` 
+// Dashboard ka data bhejna
+app.get('/api/data', (req, res) => {
+    if (!req.session.loggedin) return res.status(401).json({msg: "Unauth"});
+    
+    const user = users.find(u => u.username === req.session.username);
+    res.json({
+        username: user.username,
+        mobile: user.mobile,
+        balance: user.wallet.balance,
+        recharge: user.wallet.recharge,
+        withdraw: user.wallet.withdraw
     });
 });
 
-app.get('/dashboard', (req, res) => {
-    if (req.session.loggedin) res.sendFile(path.join(__dirname, 'views/dashboard.html'));
-    else res.redirect('/');
+// --- 3. ID TO ID TRANSFER (THE MAIN API FEATURE) ---
+app.post('/api/transfer', (req, res) => {
+    if (!req.session.loggedin) return res.status(401).json({ success: false, msg: "Login Required" });
+
+    const { receiverMobile, amount } = req.body;
+    const transferAmount = parseFloat(amount);
+
+    const sender = users.find(u => u.username === req.session.username);
+    const receiver = users.find(u => u.mobile === receiverMobile);
+
+    // Validations
+    if (!receiver) {
+        return res.json({ success: false, msg: "Receiver Mobile not found in ASVR System!" });
+    }
+    if (sender.mobile === receiverMobile) {
+        return res.json({ success: false, msg: "Self-transfer not allowed!" });
+    }
+    if (isNaN(transferAmount) || transferAmount <= 0) {
+        return res.json({ success: false, msg: "Invalid Amount!" });
+    }
+    if (sender.wallet.balance < transferAmount) {
+        return res.json({ success: false, msg: "Insufficient ASVR Balance!" });
+    }
+
+    // Processing Transaction
+    sender.wallet.balance -= transferAmount;
+    receiver.wallet.balance += transferAmount;
+
+    console.log(`Transfer: ${sender.username} -> ${receiver.username} | Amount: ${transferAmount}`);
+
+    res.json({ 
+        success: true, 
+        msg: `Successfully transferred ₹${transferAmount} to ${receiver.username} (${receiver.mobile})` 
+    });
 });
 
-app.get('/api/data', (req, res) => {
-    if (!req.session.loggedin) return res.status(401).json({msg: "Unauthorized"});
-    const user = users.find(u => u.username === req.session.username);
-    res.json({ ...user.wallet, username: user.username, mobile: user.mobile });
-});
-
+// Logout logic
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
 
+// Port Setting for Render
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`ASVR WALLET running on ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`ASVR WALLET SERVER STARTED ON PORT ${PORT}`);
+});
