@@ -2,47 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - VSV Gateway</title>
+    <title>Dashboard - ASVR WALLET</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-link:hover { background-color: #ecfdf5; color: #059669; }
+        .active-link { background-color: #ecfdf5; color: #059669; border-right: 4px solid #10b981; }
+    </style>
 </head>
-<body class="bg-gray-100 flex h-screen">
-    <div class="w-64 bg-white shadow-lg flex flex-col">
-        <div class="p-6 font-bold text-xl text-blue-800 border-b">VSV GATEWAY</div>
-        <nav class="flex-1 p-4 space-y-2">
-            <div class="text-xs text-gray-400 uppercase p-2">Services</div>
-            <a href="#" class="block p-2 bg-blue-50 text-blue-700 rounded"><i class="fas fa-th-large mr-2"></i> Dashboard</a>
-            <a href="#" class="block p-2 text-gray-600 hover:bg-gray-100"><i class="fas fa-wallet mr-2"></i> Withdraw</a>
-            <a href="#" class="block p-2 text-gray-600 hover:bg-gray-100"><i class="fas fa-plus-circle mr-2"></i> Recharge</a>
-            <div class="text-xs text-gray-400 uppercase p-2 mt-4">API Tool</div>
-            <a href="#" class="block p-2 text-gray-600 hover:bg-gray-100"><i class="fas fa-code mr-2"></i> API Settings</a>
-            <a href="/logout" class="block p-2 text-red-600 mt-10"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+    <div class="w-72 bg-white shadow-2xl flex flex-col z-10">
+        <div class="p-8 font-black text-2xl text-emerald-600 border-b border-emerald-50 tracking-tighter">
+            ASVR WALLET
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+            <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest px-4 mb-2 mt-4">Main Menu</div>
+            <a href="#" class="sidebar-link active-link flex items-center p-4 rounded-xl transition font-semibold">
+                <i class="fas fa-th-large mr-3 w-5"></i> Dashboard
+            </a>
+
+            <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest px-4 mb-2 mt-6">Services</div>
+            <a href="#" class="sidebar-link flex items-center p-4 rounded-xl transition text-gray-500 font-medium">
+                <i class="fas fa-arrow-down mr-3 w-5"></i> Withdraw
+            </a>
+            <a href="#" class="sidebar-link flex items-center p-4 rounded-xl transition text-gray-500 font-medium">
+                <i class="fas fa-plus-circle mr-3 w-5"></i> Recharge
+            </a>
+
+            <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest px-4 mb-2 mt-6">History</div>
+            <a href="#" class="sidebar-link flex items-center p-4 rounded-xl transition text-gray-500 font-medium">
+                <i class="fas fa-history mr-3 w-5"></i> Transactions
+            </a>
+            
+            <a href="/logout" class="flex items-center p-4 mt-20 text-red-400 hover:bg-red-50 rounded-xl transition font-bold">
+                <i class="fas fa-sign-out-alt mr-3"></i> Logout
+            </a>
         </nav>
     </div>
 
-    <div class="flex-1 overflow-y-auto">
-        <header class="bg-white p-4 flex justify-between items-center shadow-sm">
-            <span class="text-gray-500">Dashboard / Main</span>
-            <div class="font-bold text-blue-700">User: Admin</div>
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <header class="bg-white p-5 flex justify-between items-center border-b border-emerald-50 px-10">
+            <div class="flex items-center space-x-2 text-sm">
+                <span class="text-gray-400">Pages</span>
+                <span class="text-gray-300">/</span>
+                <span class="text-emerald-600 font-bold">Dashboard</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-600 font-medium" id="user-display">Welcome, User</span>
+                <div class="w-10 h-10 bg-emerald-500 rounded-full border-4 border-emerald-100"></div>
+            </div>
         </header>
 
-        <main class="p-6">
-            <div class="bg-blue-600 text-white p-8 rounded-xl flex justify-between items-center mb-6">
+        <main class="p-10">
+            <div class="bg-gradient-to-br from-emerald-600 to-teal-500 text-white p-12 rounded-[2rem] flex justify-between items-center mb-10 shadow-2xl shadow-emerald-200">
                 <div>
-                    <p class="opacity-80">Available Balance</p>
-                    <h1 class="text-4xl font-bold" id="bal">₹0.07</h1>
+                    <p class="text-emerald-100 text-lg font-medium opacity-80 uppercase tracking-widest">Available Balance</p>
+                    <h1 class="text-6xl font-black mt-2 tracking-tighter" id="bal">₹0.00</h1>
                 </div>
-                <button onclick="doWithdraw()" class="bg-white text-blue-600 px-6 py-2 rounded-lg font-bold">Withdraw</button>
+                <div class="flex flex-col space-y-3">
+                    <button onclick="alert('Payment Gateway Loading...')" class="bg-white text-emerald-600 px-10 py-4 rounded-2xl font-black hover:bg-emerald-50 transition shadow-xl text-lg uppercase tracking-wide">
+                        + Add Funds
+                    </button>
+                    <button onclick="doWithdraw()" class="bg-emerald-800/30 backdrop-blur-md text-white px-10 py-3 rounded-2xl font-bold hover:bg-emerald-900/40 transition">
+                        Withdraw Money
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-4">
-                <div class="bg-white p-4 rounded shadow border-l-4 border-green-500">
-                    <p class="text-sm text-gray-500">Recharge - Life Time</p>
-                    <p class="text-xl font-bold" id="rech">₹0</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-emerald-50">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center"><i class="fas fa-bolt"></i></div>
+                        <p class="text-gray-400 font-bold text-xs uppercase tracking-widest">Total Recharge</p>
+                    </div>
+                    <p class="text-3xl font-black text-gray-800" id="rech">₹0</p>
                 </div>
-                <div class="bg-white p-4 rounded shadow border-l-4 border-red-500">
-                    <p class="text-sm text-gray-500">Withdraw - Life Time</p>
-                    <p class="text-xl font-bold" id="with">₹0</p>
+                
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-emerald-50">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center"><i class="fas fa-external-link-alt"></i></div>
+                        <p class="text-gray-400 font-bold text-xs uppercase tracking-widest">Total Withdraw</p>
+                    </div>
+                    <p class="text-3xl font-black text-gray-800" id="with">₹0</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-emerald-50">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center"><i class="fas fa-check-double"></i></div>
+                        <p class="text-gray-400 font-bold text-xs uppercase tracking-widest">Status</p>
+                    </div>
+                    <p class="text-2xl font-black text-emerald-500">Verified Account</p>
                 </div>
             </div>
         </main>
@@ -50,24 +101,32 @@
 
     <script>
         async function loadData() {
-            const res = await fetch('/api/data');
-            const data = await res.json();
-            document.getElementById('bal').innerText = `₹${data.balance.toFixed(2)}`;
-            document.getElementById('rech').innerText = `₹${data.recharge}`;
-            document.getElementById('with').innerText = `₹${data.withdraw}`;
+            try {
+                const res = await fetch('/api/data');
+                const data = await res.json();
+                document.getElementById('bal').innerText = `₹${data.balance.toFixed(2)}`;
+                document.getElementById('rech').innerText = `₹${data.recharge}`;
+                document.getElementById('with').innerText = `₹${data.withdraw}`;
+                document.getElementById('user-display').innerText = `Hello, ${data.username}`;
+            } catch(e) { window.location.href = '/'; }
         }
 
         async function doWithdraw() {
-            const amt = prompt("Enter amount:");
-            if(!amt) return;
+            const amt = prompt("Enter amount to withdraw from ASVR WALLET:");
+            if(!amt || isNaN(amt)) return;
+            
             const res = await fetch('/api/withdraw', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ amount: parseFloat(amt) })
             });
             const result = await res.json();
-            if(result.success) loadData();
-            else alert(result.msg);
+            if(result.success) {
+                alert("Withdrawal Successful!");
+                loadData();
+            } else {
+                alert(result.msg);
+            }
         }
         loadData();
     </script>
