@@ -6,15 +6,19 @@
 </head>
 <body class="bg-emerald-50 flex items-center justify-center h-screen">
     <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-96 border-t-8 border-emerald-500">
-        <h2 class="text-3xl font-black text-center text-emerald-600 mb-2">ASVR WALLET</h2>
-        <p class="text-center text-gray-400 text-sm mb-8">Secure Payment Login</p>
+        <h2 class="text-3xl font-black text-center text-emerald-600 mb-6 italic">ASVR WALLET</h2>
         <form action="/login" method="POST" class="space-y-4">
-            <input type="text" name="username" placeholder="Username" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
-            <input type="number" name="mobile" placeholder="Mobile Number" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
-            <input type="password" name="password" placeholder="Password" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
-            <button class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-100">LOGIN</button>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase ml-2">Username or Mobile</label>
+                <input type="text" name="loginId" placeholder="Enter details" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase ml-2">Password</label>
+                <input type="password" name="password" placeholder="••••••••" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
+            </div>
+            <button class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold hover:bg-emerald-600 shadow-lg">SIGN IN</button>
         </form>
-        <p class="text-center mt-6 text-sm">New here? <a href="/signup" class="text-emerald-600 font-bold">Create Account</a></p>
+        <p class="text-center mt-6 text-sm">New member? <a href="/signup" class="text-emerald-600 font-bold">Register</a></p>
     </div>
 </body>
 </html>
