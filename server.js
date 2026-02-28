@@ -11,42 +11,56 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// Dummy Data (Database ki jagah)
-const ADMIN_USER = { user: "admin", pass: "12345" };
-let wallet = { balance: 0.07, recharge: 0, withdraw: 0 };
+// Users ka data store karne ke liye (Database ki jagah memory use ho rahi hai)
+let users = []; 
 
-// Login Route
-app.post('/login', (req, res) => {
+// Routes
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views/login.html')));
+app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'views/signup.html')));
+
+// Sign Up Logic
+app.post('/auth/signup', (req, res) => {
     const { username, password } = req.body;
-    if (username === ADMIN_USER.user && password === ADMIN_USER.pass) {
+    const userExists = users.find(u => u.username === username);
+    
+    if (userExists) {
+        return res.send('User already exists! <a href="/signup">Try again</a>');
+    }
+
+    // Naya user create karna
+    const newUser = {
+        username,
+        password,
+        wallet: { balance: 10.00, recharge: 0, withdraw: 0 } // Default 10rs bonus
+    };
+    users.push(newUser);
+    res.send('Registration Successful! <a href="/">Login Now</a>');
+});
+
+// Login Logic
+app.post('/auth/login', (req, res) => {
+    const { username, password } = req.body;
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if (user) {
         req.session.loggedin = true;
+        req.session.username = username;
         res.redirect('/dashboard');
     } else {
-        res.send('Invalid Username or Password! <a href="/">Try again</a>');
+        res.send('Invalid Credentials! <a href="/">Try again</a>');
     }
 });
 
-// Middleware to protect dashboard
-const checkAuth = (req, res, next) => {
-    if (req.session.loggedin) next();
+// Dashboard Data API
+app.get('/api/data', (req, res) => {
+    if (!req.session.loggedin) return res.status(401).json({msg: "Unauthorized"});
+    const user = users.find(u => u.username === req.session.username);
+    res.json(user.wallet);
+});
+
+app.get('/dashboard', (req, res) => {
+    if (req.session.loggedin) res.sendFile(path.join(__dirname, 'views/dashboard.html'));
     else res.redirect('/');
-};
-
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views/login.html')));
-app.get('/dashboard', checkAuth, (req, res) => res.sendFile(path.join(__dirname, 'views/dashboard.html')));
-
-// API for Dashboard Data
-app.get('/api/data', checkAuth, (req, res) => res.json(wallet));
-
-app.post('/api/withdraw', checkAuth, (req, res) => {
-    const { amount } = req.body;
-    if (amount <= wallet.balance) {
-        wallet.balance -= amount;
-        wallet.withdraw += parseFloat(amount);
-        res.json({ success: true });
-    } else {
-        res.json({ success: false, msg: "Insufficient Funds" });
-    }
 });
 
 app.get('/logout', (req, res) => {
