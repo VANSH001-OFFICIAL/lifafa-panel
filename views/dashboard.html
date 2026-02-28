@@ -1,47 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>ASVR WALLET - Dashboard</title>
+    <title>Dashboard - ASVR WALLET</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
-    <div class="w-72 bg-white shadow-xl flex flex-col z-10 border-r border-emerald-50">
-        <div class="p-8 font-black text-2xl text-emerald-600">ASVR WALLET</div>
-        <nav class="flex-1 p-4 space-y-2">
-            <a href="#" class="block p-4 bg-emerald-50 text-emerald-700 rounded-2xl font-bold"><i class="fas fa-home mr-3"></i> Dashboard</a>
-            <button onclick="idTransfer()" class="w-full text-left p-4 text-gray-600 hover:bg-emerald-50 rounded-2xl transition"><i class="fas fa-exchange-alt mr-3"></i> ID Transfer</button>
-            <a href="/logout" class="block p-4 text-red-500 mt-20 font-bold"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
-        </nav>
-    </div>
-
-    <div class="flex-1 overflow-y-auto p-10">
-        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-12 rounded-[3rem] shadow-2xl flex justify-between items-center mb-10">
-            <div>
-                <p class="opacity-80 font-medium">ASVR Available Balance</p>
-                <h1 class="text-6xl font-black mt-2" id="bal">₹0.00</h1>
-                <p class="mt-4 text-sm bg-emerald-700/30 w-fit px-3 py-1 rounded-full" id="mob-display">Mobile: ---</p>
-            </div>
-            <button onclick="idTransfer()" class="bg-white text-emerald-600 px-10 py-4 rounded-2xl font-black shadow-xl hover:scale-105 transition">ID TRANSFER</button>
+<body class="bg-gray-50 overflow-y-auto">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-black text-emerald-600 italic">ASVR WALLET</h1>
+            <a href="/logout" class="text-red-500 font-bold">Logout</a>
         </div>
 
-        <div class="bg-white rounded-[2rem] shadow-sm border border-emerald-50 p-8">
-            <h3 class="text-xl font-black text-gray-700 mb-6">Recent Transactions</h3>
-            <div class="overflow-hidden">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="text-gray-400 text-xs uppercase border-b border-gray-100">
-                            <th class="pb-4">Type</th>
-                            <th class="pb-4">From/To</th>
-                            <th class="pb-4">Amount</th>
-                            <th class="pb-4">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-body" class="text-sm font-medium">
-                        </tbody>
-                </table>
+        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-10 rounded-[2.5rem] text-white shadow-2xl mb-10">
+            <p class="opacity-80">Available Balance</p>
+            <h1 class="text-5xl font-black mt-2" id="bal">₹0.00</h1>
+            <div class="mt-6 flex space-x-3">
+                <button onclick="idTransfer()" class="bg-white text-emerald-600 px-6 py-2 rounded-xl font-bold">ID Transfer</button>
             </div>
+        </div>
+
+        <div class="mb-10">
+            <h2 class="text-xl font-black text-gray-700 mb-6">Available Earning Tasks</h2>
+            <div id="task-list" class="grid gap-4"></div>
+        </div>
+
+        <div class="bg-white p-8 rounded-3xl shadow-sm border">
+            <h2 class="text-lg font-bold mb-4 text-gray-700">Recent Transactions</h2>
+            <div id="history-list" class="space-y-3"></div>
         </div>
     </div>
 
@@ -50,35 +36,42 @@
             const res = await fetch('/api/data');
             const data = await res.json();
             document.getElementById('bal').innerText = `₹${data.balance.toFixed(2)}`;
-            document.getElementById('mob-display').innerText = `Mobile: ${data.mobile}`;
             
-            // Populate History
-            const body = document.getElementById('history-body');
-            body.innerHTML = '';
-            data.history.forEach(t => {
-                body.innerHTML += `
-                    <tr class="border-b border-gray-50">
-                        <td class="py-4 ${t.type === 'Sent' ? 'text-red-500' : 'text-emerald-500'} font-bold">${t.type}</td>
-                        <td class="py-4 text-gray-700">${t.type === 'Sent' ? t.to : t.from}</td>
-                        <td class="py-4 font-black">₹${t.amount}</td>
-                        <td class="py-4 text-gray-400 text-xs">${t.date}</td>
-                    </tr>
-                `;
-            });
+            const hist = document.getElementById('history-list');
+            hist.innerHTML = data.history.map(t => `
+                <div class="flex justify-between border-b pb-2 text-sm">
+                    <span class="${t.type==='Sent'?'text-red-400':'text-emerald-500'} font-bold">${t.type}</span>
+                    <span class="font-black text-gray-700">₹${t.amount}</span>
+                </div>
+            `).join('');
+
+            const taskRes = await fetch('/api/tasks');
+            const tasks = await taskRes.json();
+            document.getElementById('task-list').innerHTML = tasks.map(t => `
+                <div class="bg-white p-6 rounded-2xl border-l-4 border-emerald-500 flex justify-between items-center shadow-sm">
+                    <div><h4 class="font-bold">${t.title}</h4><p class="text-xs text-gray-400">${t.desc}</p></div>
+                    <button onclick="submitTask('${t.id}', '${t.link}')" class="bg-emerald-100 text-emerald-600 px-4 py-2 rounded-lg font-bold text-sm">₹${t.amount}</button>
+                </div>
+            `).join('');
+        }
+
+        async function submitTask(id, link) {
+            window.open(link, '_blank');
+            const tele = prompt("Telegram Username:");
+            const ss = prompt("Screenshot Link:");
+            if(tele && ss) {
+                await fetch('/api/user/submit-task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({taskId:id, telegram:tele, ssLink:ss}) });
+                alert("Submitted!");
+            }
         }
 
         async function idTransfer() {
-            const mob = prompt("Receiver ASVR Mobile Number:");
-            const amt = prompt("Amount to Send:");
-            if(!mob || !amt) return;
-            const res = await fetch('/api/transfer', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ receiverMobile: mob, amount: amt })
-            });
-            const result = await res.json();
-            alert(result.msg);
-            loadData();
+            const mob = prompt("Receiver Mobile:");
+            const amt = prompt("Amount:");
+            if(mob && amt) {
+                const res = await fetch('/api/transfer', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({receiverMobile:mob, amount:amt}) });
+                const r = await res.json(); alert(r.msg); loadData();
+            }
         }
         loadData();
     </script>
