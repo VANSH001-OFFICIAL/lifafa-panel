@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - VSV Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 flex h-screen">
+    <div class="w-64 bg-white shadow-lg flex flex-col">
+        <div class="p-6 font-bold text-xl text-blue-800 border-b">VSV GATEWAY</div>
+        <nav class="flex-1 p-4 space-y-2">
+            <div class="text-xs text-gray-400 uppercase p-2">Services</div>
+            <a href="#" class="block p-2 bg-blue-50 text-blue-700 rounded"><i class="fas fa-th-large mr-2"></i> Dashboard</a>
+            <a href="#" class="block p-2 text-gray-600 hover:bg-gray-100"><i class="fas fa-wallet mr-2"></i> Withdraw</a>
+            <a href="#" class="block p-2 text-gray-600 hover:bg-gray-100"><i class="fas fa-plus-circle mr-2"></i> Recharge</a>
+            <div class="text-xs text-gray-400 uppercase p-2 mt-4">API Tool</div>
+            <a href="#" class="block p-2 text-gray-600 hover:bg-gray-100"><i class="fas fa-code mr-2"></i> API Settings</a>
+            <a href="/logout" class="block p-2 text-red-600 mt-10"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="flex-1 overflow-y-auto">
+        <header class="bg-white p-4 flex justify-between items-center shadow-sm">
+            <span class="text-gray-500">Dashboard / Main</span>
+            <div class="font-bold text-blue-700">User: Admin</div>
+        </header>
+
+        <main class="p-6">
+            <div class="bg-blue-600 text-white p-8 rounded-xl flex justify-between items-center mb-6">
+                <div>
+                    <p class="opacity-80">Available Balance</p>
+                    <h1 class="text-4xl font-bold" id="bal">₹0.07</h1>
+                </div>
+                <button onclick="doWithdraw()" class="bg-white text-blue-600 px-6 py-2 rounded-lg font-bold">Withdraw</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded shadow border-l-4 border-green-500">
+                    <p class="text-sm text-gray-500">Recharge - Life Time</p>
+                    <p class="text-xl font-bold" id="rech">₹0</p>
+                </div>
+                <div class="bg-white p-4 rounded shadow border-l-4 border-red-500">
+                    <p class="text-sm text-gray-500">Withdraw - Life Time</p>
+                    <p class="text-xl font-bold" id="with">₹0</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function loadData() {
+            const res = await fetch('/api/data');
+            const data = await res.json();
+            document.getElementById('bal').innerText = `₹${data.balance.toFixed(2)}`;
+            document.getElementById('rech').innerText = `₹${data.recharge}`;
+            document.getElementById('with').innerText = `₹${data.withdraw}`;
+        }
+
+        async function doWithdraw() {
+            const amt = prompt("Enter amount:");
+            if(!amt) return;
+            const res = await fetch('/api/withdraw', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ amount: parseFloat(amt) })
+            });
+            const result = await res.json();
+            if(result.success) loadData();
+            else alert(result.msg);
+        }
+        loadData();
+    </script>
+</body>
+</html>
