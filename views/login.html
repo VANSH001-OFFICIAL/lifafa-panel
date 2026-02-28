@@ -1,49 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - ASVR WALLET</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-emerald-50 flex items-center justify-center h-screen font-sans">
-    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md border-t-8 border-emerald-500">
-        <div class="text-center mb-8">
-            <h2 class="text-4xl font-black text-emerald-600 tracking-tight">ASVR WALLET</h2>
-            <p class="text-gray-400 mt-2">Secure Payment Gateway</p>
-        </div>
-        
-        <form action="/login" method="POST" class="space-y-5">
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Username</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                        <i class="fas fa-user"></i>
-                    </span>
-                    <input type="text" name="username" placeholder="Enter your username" 
-                           class="w-full pl-10 p-4 border border-emerald-100 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition" required>
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Password</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                        <i class="fas fa-lock"></i>
-                    </span>
-                    <input type="password" name="password" placeholder="Enter password" 
-                           class="w-full pl-10 p-4 border border-emerald-100 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition" required>
-                </div>
-            </div>
-            <button class="w-full bg-emerald-500 text-white py-4 rounded-xl font-extrabold text-lg hover:bg-emerald-600 shadow-lg shadow-emerald-200 transition-all active:scale-95">
-                LOG IN
-            </button>
+<body class="bg-emerald-50 flex items-center justify-center h-screen">
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-96 border-t-8 border-emerald-500">
+        <h2 class="text-3xl font-black text-center text-emerald-600 mb-2">ASVR WALLET</h2>
+        <p class="text-center text-gray-400 text-sm mb-8">Secure Payment Login</p>
+        <form action="/login" method="POST" class="space-y-4">
+            <input type="text" name="username" placeholder="Username" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
+            <input type="number" name="mobile" placeholder="Mobile Number" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
+            <input type="password" name="password" placeholder="Password" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
+            <button class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-100">LOGIN</button>
         </form>
-        
-        <div class="mt-8 text-center border-t border-gray-100 pt-6">
-            <p class="text-gray-500 text-sm mb-2">New user?</p>
-            <a href="/signup" class="text-emerald-600 font-bold hover:text-emerald-700 transition">Create ASVR Account</a>
-        </div>
+        <p class="text-center mt-6 text-sm">New here? <a href="/signup" class="text-emerald-600 font-bold">Create Account</a></p>
     </div>
 </body>
 </html>
