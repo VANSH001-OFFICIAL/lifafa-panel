@@ -5,15 +5,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-emerald-50 flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded-3xl shadow-xl w-96 border-b-8 border-emerald-500">
-        <h2 class="text-3xl font-black text-center text-emerald-600 mb-6">Create Account</h2>
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-96 border-b-8 border-emerald-500">
+        <h2 class="text-3xl font-black text-center text-emerald-600 mb-2">Join ASVR</h2>
+        <p class="text-center text-gray-400 text-sm mb-8">Start your ID-to-ID transfers</p>
         <form action="/auth/signup" method="POST" class="space-y-4">
-            <input type="text" name="username" placeholder="Username" class="w-full p-3 border border-emerald-100 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" required>
-            <input type="number" name="mobile" placeholder="Mobile Number" class="w-full p-3 border border-emerald-100 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" required>
-            <input type="password" name="password" placeholder="Password" class="w-full p-3 border border-emerald-100 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" required>
-            <button class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold hover:bg-emerald-600">SIGN UP</button>
+            <input type="text" name="username" placeholder="Choose Username" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
+            <input type="number" name="mobile" placeholder="Mobile Number" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
+            <input type="password" name="password" placeholder="Create Password" class="w-full p-4 border border-emerald-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500" required>
+            <button class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-100">SIGN UP</button>
         </form>
-        <p class="text-center mt-4 text-sm text-gray-500">Already have an account? <a href="/" class="text-emerald-600 font-bold">Login</a></p>
+        <p class="text-center mt-6 text-sm">Already a member? <a href="/" class="text-emerald-600 font-bold">Login</a></p>
     </div>
 </body>
 </html>
