@@ -1,51 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Panel - ASVR WALLET</title>
+    <title>Admin - ASVR WALLET</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-10">
-    <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-10">
-            <h1 class="text-4xl font-black text-emerald-600">ASVR ADMIN</h1>
-            <a href="/logout" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold">Logout</a>
-        </div>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-3xl font-black text-emerald-600 mb-8">ASVR ADMIN PANEL</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-3xl shadow-lg">
+                <h2 class="font-bold mb-4">Create New Task</h2>
+                <input id="t-title" placeholder="Title" class="w-full mb-2 p-3 border rounded-xl">
+                <input id="t-link" placeholder="Link" class="w-full mb-2 p-3 border rounded-xl">
+                <input id="t-amt" placeholder="Amount (₹)" class="w-full mb-2 p-3 border rounded-xl">
+                <textarea id="t-desc" placeholder="Instructions" class="w-full mb-2 p-3 border rounded-xl"></textarea>
+                <button onclick="addTask()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold">Add Task</button>
+            </div>
 
-        <div class="bg-white rounded-3xl shadow-xl p-8">
-            <h2 class="text-xl font-bold mb-6">Registered Users Control</h2>
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="text-gray-400 text-sm border-b">
-                        <th class="p-4">Username</th>
-                        <th class="p-4">Mobile</th>
-                        <th class="p-4">Wallet Balance</th>
-                        <th class="p-4">Role</th>
-                    </tr>
-                </thead>
-                <tbody id="user-list">
-                    </tbody>
-            </table>
+            <div class="bg-white p-8 rounded-3xl shadow-lg">
+                <h2 class="font-bold mb-4">Review Submissions</h2>
+                <div id="subs" class="space-y-4"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        async function fetchUsers() {
-            const res = await fetch('/api/admin/users');
-            const users = await res.json();
-            const list = document.getElementById('user-list');
-            list.innerHTML = '';
-            users.forEach(u => {
-                list.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50 transition">
-                        <td class="p-4 font-bold text-gray-700">${u.username}</td>
-                        <td class="p-4 text-gray-500">${u.mobile}</td>
-                        <td class="p-4 text-emerald-600 font-black">₹${u.wallet.balance.toFixed(2)}</td>
-                        <td class="p-4"><span class="px-3 py-1 rounded-full text-xs ${u.role==='admin'?'bg-purple-100 text-purple-600':'bg-blue-100 text-blue-600'}">${u.role}</span></td>
-                    </tr>
-                `;
-            });
+        async function addTask() {
+            const data = { title: document.getElementById('t-title').value, link: document.getElementById('t-link').value, amount: document.getElementById('t-amt').value, desc: document.getElementById('t-desc').value };
+            await fetch('/api/admin/add-task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            alert("Task Added!");
         }
-        fetchUsers();
+
+        async function loadSubs() {
+            const res = await fetch('/api/admin/submissions');
+            const data = await res.json();
+            document.getElementById('subs').innerHTML = data.filter(s=>s.status==='Pending').map(s => `
+                <div class="p-4 bg-gray-50 border rounded-2xl text-xs">
+                    <p><b>User:</b> ${s.username} | <b>Tele:</b> ${s.telegram}</p>
+                    <p><b>Amt:</b> ₹${s.amount} | <a href="${s.ssLink}" target="_blank" class="text-blue-500 font-bold underline italic">View SS</a></p>
+                    <div class="mt-2 flex space-x-2">
+                        <button onclick="action('${s.subId}', 'Approve')" class="bg-emerald-500 text-white px-3 py-1 rounded">Approve</button>
+                        <button onclick="action('${s.subId}', 'Reject')" class="bg-red-500 text-white px-3 py-1 rounded">Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        async function action(id, type) {
+            await fetch('/api/admin/approve-task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({subId:id, action:type}) });
+            loadSubs();
+        }
+        loadSubs();
     </script>
 </body>
 </html>
